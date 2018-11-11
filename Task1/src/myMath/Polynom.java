@@ -1,10 +1,9 @@
 package myMath;
 
-import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import gui.JLauncher;
+import gui.GraphPoints;
 import myMath.Monom;
 /**
  * This class represents a Polynom with add, multiply functionality, it also should support the following:
@@ -258,9 +257,8 @@ public class Polynom implements Polynom_able{
 	}
 
 	public void Graph() {
-		JLauncher panel = new JLauncher(toString());
-		panel.setVisible(true);
-		panel.setLayout(new BorderLayout());
+		GraphPoints frame = new GraphPoints(this);
+		frame.setVisible(true);
 	}
 
 	public String toString() {
