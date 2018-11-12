@@ -256,8 +256,8 @@ public class Polynom implements Polynom_able{
 		return List.iterator();//creates iterator
 	}
 
-	public void Graph() {
-		GraphPoints frame = new GraphPoints(this);
+	public void Graph(double a, double b) {
+		GraphPoints frame = new GraphPoints(this,a,b);
 		frame.setVisible(true);
 	}
 

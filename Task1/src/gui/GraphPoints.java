@@ -1,9 +1,20 @@
 package gui;
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.Image;
+import java.awt.TexturePaint;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 
 import de.erichseifert.gral.data.DataTable;
+import de.erichseifert.gral.graphics.Location;
 import de.erichseifert.gral.plots.XYPlot;
 import de.erichseifert.gral.plots.lines.DefaultLineRenderer2D;
 import de.erichseifert.gral.plots.lines.LineRenderer;
@@ -12,51 +23,64 @@ import myMath.Polynom;
 
 public class GraphPoints extends JFrame {
 
-	public GraphPoints(Polynom p)  {
+	public GraphPoints(Polynom p, double x0, double x1)  {
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setSize(1000, 800);
 
+		Image icon = new ImageIcon(this.getClass().getResource("/monkey.png")).getImage();
+		setIconImage(icon);
+
 		Polynom pD = (Polynom) p.derivative();
-		
+
 		DataTable data = new DataTable(Double.class, Double.class);
-		DataTable Max = new DataTable(Double.class, Double.class);
-		DataTable Min = new DataTable(Double.class, Double.class);
+		DataTable MinMax = new DataTable(Double.class, Double.class);
 
-		Min.setName("Min-Points");
-		Max.setName("Max-Points");
-
-		for (double x = -8.0; x <= 8.0; x+=0.20) {
-			double y = p.f(x);
-			if(pD.f(x) >= 0 && pD.f(x+0.20) < 0) {
-				Max.add(x,y);
+		double temp;
+		for (double x = x0; x <=x1; x+=0.20) {
+			double y = p.f(x);		
+			if((pD.f(x) >= 0 && pD.f(x+0.20) < 0) || (pD.f(x) < 0 && pD.f(x+0.20) > 0)) {
+				temp = pD.root(x, x+0.20, 0.0001);
+				MinMax.add(temp,p.f(temp));
+				data.add(temp,p.f(temp));
 			}
-			else if(pD.f(x) < 0 && pD.f(x+0.20) > 0) {
-				Min.add(x,y);
-			}
-			else data.add(x,y);
+			else
+				data.add(x,y);
 		}
 
-		XYPlot plot = new XYPlot(data,Min,Max);
+
+
+		XYPlot plot = new XYPlot(data,MinMax);
 		getContentPane().add(new InteractivePanel(plot));
+
+		try {
+			BufferedImage bgImage = ImageIO.read(this.getClass().getResource("/monkey.png"));
+			TexturePaint background = new TexturePaint(bgImage, new Rectangle2D.Double(0.0, 0.0, 1.0, 1.0));
+			plot.getPlotArea().setBackground(background);
+		} catch (IOException e) {
+
+		}
+
 
 		LineRenderer lines = new DefaultLineRenderer2D();
 		plot.setLineRenderers(data, lines);
 
 		lines.setGap(1.0);
 
-		Color colorMin = new Color(1.0f, 0.0f, 0.0f);
-		Color colorMax = new Color(0.9f, 0.5f, 0.0f);
+		Color colorM = new Color(0.7f, 0.0f, 0.9f);
 		Color colorD = new Color(0.3f, 0.3f,0.7f);
 
 		plot.getLineRenderers(data).get(0).setColor(colorD);
 		plot.getPointRenderers(data).get(0).setColor(colorD);
 
-		plot.getPointRenderers(Min).get(0).setColor(colorMin);
-		plot.getPointRenderers(Min).get(0).setShape(new Ellipse2D.Double(-4.0, -4.0, 10.0, 10.0));
+		plot.getPointRenderers(data).get(0).setShape(new Ellipse2D.Double(0.0, 0.0, 0.0, 0.0));
+
+		plot.getPointRenderers(MinMax).get(0).setColor(colorM);
+		plot.getPointRenderers(MinMax).get(0).setShape(new Ellipse2D.Double(-4.0, -4.0, 10.0, 10.0));
+
 		
-		plot.getPointRenderers(Max).get(0).setColor(colorMax);
-		plot.getPointRenderers(Max).get(0).setShape(new Ellipse2D.Double(-4.0, -4.0, 10.0, 10.0));
+		plot.getPointRenderers(MinMax).get(0).setValueVisible(true);
 		
+		plot.getPointRenderers(MinMax).get(0).setValueRotation(55);
 		plot.setLegendVisible(true);
 
 	}
