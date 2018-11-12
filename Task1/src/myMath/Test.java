@@ -74,7 +74,7 @@ public class Test
 		System.out.println("\nCalculating root of "+dana+" from "+a+" to "+b+", eps "+eps+":");
 		System.out.println(dana.root(a, b, eps));
 
-		dana = new Polynom("8x+5");
+		dana = new Polynom("8x^2+5");
 		
 		dana.Graph(-2,6);
 		
